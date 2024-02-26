@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('checkout') {
+            steps {
+                git ' https://github.com/Rohit-Gavande/Demo.git '
+            }
+        }
+		stage('docker build') {
+            steps {
+                sh '''  
+				sudo docker build -t jenkinsfile .
+				'''
+            }
+        }
+		stage('docker push ') {
+            steps {
+                sh ''' 
+				aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 905418022845.dkr.ecr.ap-southeast-1.amazonaws.com
+				docker tag jenkinsfile:latest 905418022845.dkr.ecr.ap-southeast-1.amazonaws.com/jenkinsfile:latest
+				docker push 905418022845.dkr.ecr.ap-southeast-1.amazonaws.com/jenkinsfile:latest
+				'''
+            }
+        }
+    }
+}
